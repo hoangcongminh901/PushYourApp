@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.manhnv.push">
+    <!-- REQUIRED for XtremePush -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Keeps the processor from sleeping when a message is received. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- OPTIONAL XtremePush settings-->
+    <!-- REQUIRED FOR GEO-LOCATION-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- REQUIRED FOR IBEACON -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!-- REQUIRED IF you support iBeacon and your app must support devices that don't support BLE -->
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false" />
+    <!-- REQUIRED PERMISSIONS for GCM -->
+    <!-- A Google account is not a requirement on devices running Android 4.0.4 or higher so GET_ACCOUNTS may be omitted if you target 4.0.4 and up (https://developer.android.com/google/gcm/client.html) -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <!-- GCM requires a Google account. -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <!-- This app has permission to register with GCM and receive message -->
+    <!-- MODIFICATION NEEDED - Replace YOUR_PACKAGE_NAME with your package name -->
+    <permission android:name="com.manhnv.push.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="com.manhnv.push.permission.C2D_MESSAGE" />
+    <!-- The two elements above ensure that only this application can receive the messages and registration result -->
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="ie.imobile.extremepush.ui.DisplayPushActivity"
+            android:label="Push received"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
+
+        <activity
+            android:name="ie.imobile.extremepush.ui.WebViewActivity"
+            android:exported="false" />
+
+        <!-- REQUIRED FOR LOCATION SERVICES-->
+        <service
+            android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
+
+        <activity
+            android:name="ie.imobile.extremepush.ui.LocationDialogActivity"
+            android:label="Locations are not available"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
+
+        <!-- REQUIRED FOR IBEACON -->
+        <service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
+
+        <service android:enabled="true"
+            android:exported="true"
+            android:isolatedProcess="false"
+            android:label="iBeacon"
+            android:name="com.radiusnetworks.ibeacon.service.IBeaconService">
+        </service>
+
+        <!-- MODIFICATION NEEDED - Replace YOUR_PACKAGE_NAME with your package name -->
+        <service android:enabled="true"
+            android:name="com.radiusnetworks.ibeacon.IBeaconIntentProcessor">
+            <meta-data android:name="background" android:value="true" />
+            <intent-filter
+                android:priority="1" >
+                <action android:name="com.manhnv.push.DID_RANGING" />
+                <action android:name="com.manhnv.push.DID_MONITORING" />
+            </intent-filter>
+        </service>
+        <service android:name="ie.imobile.extremepush.GCMIntentService" />
+
+        <receiver
+            android:name="ie.imobile.extremepush.receivers.GCMReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <action android:name="ie.imobile.extremepush.BEACON_SERVICE_STARTED" />
+                <!-- MODIFICATION NEEDED - Replace YOUR_PACKAGE_NAME with your package name -->
+                <category android:name="com.manhnv.push" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+    </application>
+
+</manifest>
